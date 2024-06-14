@@ -12,6 +12,7 @@ if ( typeof _myport !== 'undefined' && _myport ) {
 	});
 	
 	wss.on('connection', (ws) => {
+		console.log('Client connected.');
 		ws.on('message', (data) => handleMessage(ws, data));
 		ws.on('close', () => handleDisconnect(ws));
 	});
@@ -19,6 +20,7 @@ if ( typeof _myport !== 'undefined' && _myport ) {
 
 
 function handleMessage(ws, data) {
+	console.log(JSON.parse(data));
 	try {
         const message = JSON.parse(data);
 
@@ -59,7 +61,10 @@ function handleMessage(ws, data) {
 
 function handleDisconnect(ws) {
 	const rid = rooms.getPlayerRoom(ws);
-	rooms.removePlayer(rid, ws);
+	if (rid != null) {
+		rooms.removePlayer(rid, ws);
+	}
+	console.log('Client disconnected.');
 }
 
 

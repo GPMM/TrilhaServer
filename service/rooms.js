@@ -17,14 +17,23 @@ function createRoom() {
 
 
 function insertPlayer(rid, player) {
-	const room_data = rooms.get(rid);
-	room_data.players.push(player);
-	
-	const player_data = {
-		rid: rid
-	}
-	connp.set(player, player_data);
+    let room_data = rooms.get(rid);
+    if (!room_data) {
+        // Se a sala não existe, crie uma nova sala
+        room_data = {
+            id: rid,
+            players: []
+        };
+        rooms.set(rid, room_data);
+    }
+    room_data.players.push(player);
+    
+    const player_data = {
+        rid: rid
+    };
+    connp.set(player, player_data);
 }
+
 
 
 function removePlayer(rid, player) {
@@ -34,22 +43,29 @@ function removePlayer(rid, player) {
 
 
 function getRoomPlayers(rid) {
-	const room_data = rooms.get(rid);
-	var list = [];
-	
-	room_data.players.forEach((player) => {
-		list.push(connp.get(player).name);
-	});
-	return list;
+    const room_data = rooms.get(rid);
+    if (room_data && room_data.players) {
+        var list = [];
+        room_data.players.forEach((player) => {
+            list.push(connp.get(player).name);
+        });
+        return list;
+    } else {
+        return [];
+    }
 }
+
 
 
 function notifyRoomPlayers(rid, message) {
-	const room_data = rooms.get(rid);
-	room_data.players.forEach((player) => {
-		player.send(message);
-	});
+    const room_data = rooms.get(rid);
+    if (room_data && room_data.players) { // Verifica se room_data e room_data.players estão definidos
+        room_data.players.forEach((player) => {
+            player.send(message);
+        });
+    }
 }
+
 
 
 function notifyRoomPlayersExcept(rid, player, message) {
@@ -69,7 +85,12 @@ function savePlayerData(player, key, value) {
 
 function getPlayerRoom(player) {
 	const player_data = connp.get(player);
-	return player_data.rid;
+	if (player_data != null) {
+		return player_data.rid;
+	}
+	else {
+		return null;
+	}	
 }
 
 
